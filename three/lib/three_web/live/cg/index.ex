@@ -3,24 +3,35 @@ defmodule ThreeWeb.CgLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    Process.send_after(self(), :update, 250)
+    Process.send_after(self(), :update, 25)
+
+    socket =
+      socket
+      |> assign(data: initialization_character_data())
+
     {:ok, main(socket)}
   end
 
   @impl true
   def handle_info(:update, socket) do
-    Process.send_after(self(), :update, 250)
+    Process.send_after(self(), :update, 12)
     {:noreply, main(socket)}
   end
 
+  defp initialization_character_data() do
+    0
+  end
+
   defp main(socket) do
-    t = DateTime.utc_now()
-    |> to_string()
-    |> IO.inspect()
+    character_data =
+      update(socket.assigns.data)
+      |> IO.inspect()
 
-    socket =
-      socket
-      |> assign(data: t)
+    socket
+    |> assign(data: character_data)
+  end
 
+  defp update(character_data) do
+    character_data + 0.1
   end
 end

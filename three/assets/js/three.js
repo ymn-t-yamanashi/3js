@@ -2,11 +2,24 @@
 import * as THREE from 'three';
 
 export const hooks = {
+    v: {}, 
     threejs: {
       mounted() {
        console.log("mounted");
+       v = init(this.el);
 
-       
+      },
+      updated() {
+       console.log("updated");
+       dataset = this.el.dataset
+       console.log(dataset.data);
+       v.cube.rotation.x = dataset.data;
+       v.render()
+      },
+    },
+  };
+
+  function init(el) {
        // シーンの作成
        const scene = new THREE.Scene();
    
@@ -17,10 +30,10 @@ export const hooks = {
        // レンダラーの作成
        const renderer = new THREE.WebGLRenderer();
        renderer.setSize( 1000,  800);
-       this.el.appendChild( renderer.domElement );
+       el.appendChild( renderer.domElement );
    
        // 立方体のジオメトリを作成
-       const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+       const geometry = new THREE.BoxGeometry( 2, 2, 2 );
    
        // マテリアルを作成
        const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
@@ -31,14 +44,14 @@ export const hooks = {
    
        cube.rotation.x += 0.31;
        cube.rotation.y += 0.31;
-       renderer.render( scene, camera );
-   
-      },
-      updated() {
-       console.log("updated");
-       console.log(this.el.dataset);
-      },
-    },
-  };
+    
+
+       function render() {
+        renderer.render( scene, camera );
+       }
+
+       render();
+       return {"cube": cube , "render": render};
+  }
   
 
