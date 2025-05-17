@@ -36,6 +36,7 @@ export const hooks = {
       },
       updated() {
        console.log("updated");
+       console.log(this.el.dataset);
       },
     },
   };
