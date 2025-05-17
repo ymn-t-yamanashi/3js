@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>シンプルな立方体</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.162.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.162.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    // シーンの作成
+    const scene = new THREE.Scene();
+
+    // カメラの作成
+    const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    camera.position.z = 5;
+
+    // レンダラーの作成
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    document.body.appendChild( renderer.domElement );
+
+    // 立方体のジオメトリを作成
+    const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+
+    // マテリアルを作成
+    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+
+    // メッシュ（ジオメトリとマテリアルを組み合わせたもの）を作成
+    const cube = new THREE.Mesh( geometry, material );
+    scene.add( cube );
+
+    // アニメーションループ
+    function animate() {
+      requestAnimationFrame( animate );
+
+      // 立方体を少し回転させる
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+
+      renderer.render( scene, camera );
+    }
+
+    animate();
+
+    // ウィンドウのリサイズに対応
+    window.addEventListener( 'resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+    }, false );
+  </script>
+</body>
+</html>
