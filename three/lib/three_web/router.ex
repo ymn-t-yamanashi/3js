@@ -18,7 +18,7 @@ defmodule ThreeWeb.Router do
     pipe_through :browser
 
     live "/", CgLive.Index, :index
-    #get "/", PageController, :home
+    # get "/", PageController, :home
   end
 
   # Other scopes may use custom stacks.
