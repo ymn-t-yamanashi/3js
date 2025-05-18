@@ -3,7 +3,7 @@ defmodule ThreeWeb.CgLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    Process.send_after(self(), :update, 25)
+    Process.send_after(self(), :update, 500)
 
     socket =
       socket
@@ -32,6 +32,6 @@ defmodule ThreeWeb.CgLive.Index do
   end
 
   defp update(character_data) do
-    character_data + 0.1
+    character_data + 0.05
   end
 end
