@@ -19,6 +19,7 @@ defmodule ThreeWeb.Router do
 
     live "/", CgLive.Index, :index
     live "/s2", CgLive.S2, :index
+    live "/s3", CgLive.S3, :index
     # get "/", PageController, :home
   end
 
