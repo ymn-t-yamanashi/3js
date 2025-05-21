@@ -19,7 +19,7 @@ defmodule ThreeWeb.CgLive.S3 do
 
   def handle_event("keydown", %{"key" => "ArrowRight"}, socket) do
     IO.inspect("-->")
-    x = socket.assigns.x + 0.1
+    x = socket.assigns.x + 0.05
 
     socket =
       socket
@@ -31,7 +31,7 @@ defmodule ThreeWeb.CgLive.S3 do
 
   def handle_event("keydown", %{"key" => "ArrowLeft"}, socket) do
     IO.inspect("<--")
-    x = socket.assigns.x - 0.1
+    x = socket.assigns.x - 0.05
 
     socket =
       socket

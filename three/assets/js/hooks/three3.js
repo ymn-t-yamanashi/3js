@@ -8,7 +8,6 @@ const Three2 = {
       console.log(v.cube)
       v.cube.position.x = x;
       console.log(x)
-      v.render();
     });
     v = init(this.el);
   }
@@ -29,7 +28,7 @@ function init(el) {
   const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
 
   // マテリアルを作成
-  const material = new THREE.MeshBasicMaterial({ color: 0x0000ee });
+  const material = new THREE.MeshBasicMaterial({ color: 0x00ffee });
 
   // メッシュ（ジオメトリとマテリアルを組み合わせたもの）を作成
   const cube = new THREE.Mesh(geometry, material);
@@ -37,12 +36,14 @@ function init(el) {
 
   cube.position.x = 0
 
-  function render() {
+  function animate() {
+    requestAnimationFrame(animate);
     renderer.render(scene, camera);
   }
 
-  render()
-  return { "cube": cube, "render": render };
+  animate();
+
+  return { "cube": cube };
 }
 
 export default Three2
