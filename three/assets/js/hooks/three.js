@@ -2,11 +2,11 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-export const hooks = {
+const Three1 = {
     v: {},
     model: null, 
-    threejs: {
-      mounted() {
+
+     mounted() {
        console.log("mounted");
        v = init(this.el);
 
@@ -17,7 +17,6 @@ export const hooks = {
        model.rotation.y = dataset.data;
        v.render()
       },
-    },
   };
 
   function init(el) {
@@ -69,4 +68,4 @@ export const hooks = {
        return {"render": render};
   }
   
-
+  export default Three1;
