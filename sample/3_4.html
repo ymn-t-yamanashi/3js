@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js BoxGeometry with Actual Texture</title>
+    <style>
+        body { margin: 0; overflow: hidden; } /* 余白とスクロールバーをなくす */
+        canvas { display: block; } /* canvasの下の隙間をなくす */
+    </style>
+</head>
+<body>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        let scene, camera, renderer, cube;
+
+        function init() {
+            // シーンの作成
+            scene = new THREE.Scene();
+
+            // カメラの作成 (PerspectiveCamera)
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5; // カメラをZ軸方向に少し後ろに引く
+
+            // レンダラーの作成
+            renderer = new THREE.WebGLRenderer({ antialias: true }); // アンチエイリアスを有効にする
+            renderer.setSize(window.innerWidth, window.innerHeight); // レンダラーのサイズを設定
+            document.body.appendChild(renderer.domElement); // DOMにcanvas要素を追加
+
+            // --- ここで実際のテクスチャファイルのパスを指定します ---
+            // 例: Three.jsの公式サンプルで使用されている木箱のテクスチャ
+            const texturePath = 'https://threejs.org/examples/textures/crate.gif';
+            // もしHTMLファイルと同じディレクトリに `my_texture.png` という画像がある場合:
+            // const texturePath = 'my_texture.png';
+            // もし `images` フォルダの中に `my_image.jpg` という画像がある場合:
+            // const texturePath = 'images/my_image.jpg';
+            // ----------------------------------------------------
+
+            // テクスチャの読み込み
+            const textureLoader = new THREE.TextureLoader();
+            const texture = textureLoader.load(texturePath,
+                // 読み込み成功時のコールバック
+                function (loadedTexture) {
+                    console.log('Texture loaded successfully:', loadedTexture);
+                    createCubeWithTexture(loadedTexture);
+                    animate(); // アニメーションを開始
+                },
+                // 読み込み進捗時のコールバック (オプション)
+                undefined,
+                // 読み込みエラー時のコールバック
+                function (err) {
+                    console.error('An error happened while loading the texture:', err);
+                    alert('テクスチャの読み込みに失敗しました。パスが正しいか、画像ファイルが存在するか確認してください。\nエラー: ' + err.message);
+                    // エラー時はテクスチャなしでキューブを作成 (赤色)
+                    createCubeWithTexture(null);
+                    animate(); // アニメーションを開始
+                }
+            );
+        }
+
+        function createCubeWithTexture(texture) {
+            let material;
+            if (texture) {
+                // テクスチャがある場合のマテリアル
+                material = new THREE.MeshBasicMaterial({ map: texture });
+            } else {
+                // テクスチャがない場合（エラー時など）のマテリアル
+                material = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // 赤色
+            }
+
+            // BoxGeometryの作成 (幅, 高さ, 奥行き)
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+
+            // メッシュの作成 (ジオメトリとマテリアルを結合)
+            cube = new THREE.Mesh(geometry, material);
+
+            // シーンにメッシュを追加
+            scene.add(cube);
+        }
+
+        // アニメーションループ
+        function animate() {
+            requestAnimationFrame(animate); // 次のフレームでanimate関数を呼び出す
+
+            if (cube) {
+                // 立方体を回転させる
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
+            }
+
+            // シーンをレンダリング
+            renderer.render(scene, camera);
+        }
+
+        // ウィンドウのリサイズイベントハンドラ
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight; // アスペクト比を更新
+            camera.updateProjectionMatrix(); // カメラのプロジェクション行列を更新
+            renderer.setSize(window.innerWidth, window.innerHeight); // レンダラーのサイズを更新
+        }
+
+        window.addEventListener('resize', onWindowResize, false);
+
+        // 初期化処理の呼び出し
+        init();
+    </script>
+</body>
+</html>
