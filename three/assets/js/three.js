@@ -8,8 +8,8 @@ export const hooks = {
       console.log("mounted");
       this.init(this.el);
 
-      this.handleEvent("add", data => {
-        this.add(data.name, data.x, data.y, data.z)
+      this.handleEvent("addCube", data => {
+        this.addCube(data.name, data.x, data.y, data.z)
       });
 
     },
@@ -17,9 +17,8 @@ export const hooks = {
       console.log("updated");
       dataset = this.el.dataset
       this.v.cube.rotation.x = dataset.data;
-      this.v.render()
     },
-    add(name, x, y, z) {
+    addCube(name, x, y, z) {
       const geometry = new THREE.BoxGeometry(x, y, z);
 
       // マテリアルを作成
@@ -44,6 +43,7 @@ export const hooks = {
       el.appendChild(renderer.domElement);
 
       function render() {
+        requestAnimationFrame(render);
         renderer.render(scene, camera);
       }
 
