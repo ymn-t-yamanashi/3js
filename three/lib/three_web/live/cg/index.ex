@@ -52,8 +52,8 @@ defmodule ThreeWeb.CgLive.Index do
     socket
     |> rotation("cube1", character_data, 0, 0)
     |> rotation("cube", 0, 0, character_data)
-    |> rotation("test", 0, character_data, 0)
-    |> rotation("test1", 0, -character_data, 0)
+    |> rotation("test", 0, character_data / 4, 0)
+    |> rotation("test1", 0, -character_data * 3, 0)
     |> assign(data: character_data)
   end
 
