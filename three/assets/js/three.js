@@ -10,11 +10,11 @@ export const hooks = {
       this.init(this.el);
       this.handleEventInit();
     },
-    addCube(name, x, y, z) {
+    addCube(name, x, y, z, color) {
       const geometry = new THREE.BoxGeometry(x, y, z);
 
       // マテリアルを作成
-      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      const material = new THREE.MeshBasicMaterial({ color: color });
 
       // メッシュ（ジオメトリとマテリアルを組み合わせたもの）を作成
       const cube = new THREE.Mesh(geometry, material);
@@ -23,17 +23,27 @@ export const hooks = {
     },
     rotation(name, x, y, z) {
       rotation = this.v[name].rotation;
-      if (x != null)  rotation.x = x;
-      if (y != null)  rotation.y = y;
-      if (z != null)  rotation.y = z;
+      if (x != null) rotation.x = x;
+      if (y != null) rotation.y = y;
+      if (z != null) rotation.y = z;
+    },
+    position(name, x, y, z) {
+      position = this.v[name].position;
+      if (x != null) position.x = x;
+      if (y != null) position.y = y;
+      if (z != null) position.y = z;
     },
     handleEventInit() {
       this.handleEvent("addCube", data => {
-        this.addCube(data.name, data.x, data.y, data.z)
+        this.addCube(data.name, data.x, data.y, data.z, data.color)
       });
-      
+
       this.handleEvent("rotation", data => {
         this.rotation(data.name, data.x, data.y, data.z)
+      });
+
+      this.handleEvent("position", data => {
+        this.position(data.name, data.x, data.y, data.z)
       });
 
     },

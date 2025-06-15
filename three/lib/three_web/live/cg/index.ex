@@ -8,7 +8,10 @@ defmodule ThreeWeb.CgLive.Index do
     socket =
       socket
       |> assign(data: initialization_character_data())
-      |> push_event("addCube", %{name: "cube", x: 1, y: 2, z: 1})
+      |> add_cube("cube", 1, 2, 1, "#AA0000")
+      |> position("cube", 1, 2, 1)
+      |> add_cube("cube1", 1, 2, 1, "#00AA00")
+      |> position("cube1", -1, 1, 1)
 
     {:ok, main(socket)}
   end
@@ -29,11 +32,24 @@ defmodule ThreeWeb.CgLive.Index do
       |> IO.inspect()
 
     socket
-    |> push_event("rotation", %{name: "cube", x: character_data, y: 1, z: 1})
+    |> rotation("cube1", character_data, 1, 1)
+    |> rotation("cube", 1, 1, character_data)
     |> assign(data: character_data)
   end
 
   defp update(character_data) do
     character_data + 0.05
+  end
+
+  defp add_cube(socket, name, x, y, z, color) do
+    push_event(socket, "addCube", %{name: name, x: x, y: y, z: z, color: color})
+  end
+
+  defp rotation(socket, name, x, y, z) do
+    push_event(socket, "rotation", %{name: name, x: x, y: y, z: z})
+  end
+
+  defp position(socket, name, x, y, z) do
+    push_event(socket, "position", %{name: name, x: x, y: y, z: z})
   end
 end
