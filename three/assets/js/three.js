@@ -8,16 +8,7 @@ export const hooks = {
     mounted() {
       console.log("mounted");
       this.init(this.el);
-
-      this.handleEvent("addCube", data => {
-        this.addCube(data.name, data.x, data.y, data.z)
-      });
-
-    },
-    updated() {
-      console.log("updated");
-      dataset = this.el.dataset
-      this.v.cube.rotation.x = dataset.data;
+      this.handleEventInit();
     },
     addCube(name, x, y, z) {
       const geometry = new THREE.BoxGeometry(x, y, z);
@@ -29,6 +20,22 @@ export const hooks = {
       const cube = new THREE.Mesh(geometry, material);
       this.v.scene.add(cube);
       this.v[name] = cube;
+    },
+    rotation(name, x, y, z) {
+      rotation = this.v[name].rotation;
+      if (x != null)  rotation.x = x;
+      if (y != null)  rotation.y = y;
+      if (z != null)  rotation.y = z;
+    },
+    handleEventInit() {
+      this.handleEvent("addCube", data => {
+        this.addCube(data.name, data.x, data.y, data.z)
+      });
+      
+      this.handleEvent("rotation", data => {
+        this.rotation(data.name, data.x, data.y, data.z)
+      });
+
     },
     init(el) {
       // シーンの作成

@@ -29,6 +29,7 @@ defmodule ThreeWeb.CgLive.Index do
       |> IO.inspect()
 
     socket
+    |> push_event("rotation", %{name: "cube", x: character_data, y: 1, z: 1})
     |> assign(data: character_data)
   end
 
