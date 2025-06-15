@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Three.js たくさんのビル</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // シーン、カメラ、レンダラーの設定
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 光源の設定 (太陽光のような役割)
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(1, 1, 1).normalize();
+        scene.add(directionalLight);
+
+        // 環境光 (全体の明るさを底上げ)
+        const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
+        scene.add(ambientLight);
+
+        // 床の作成
+        const planeGeometry = new THREE.PlaneGeometry(200, 200);
+        const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x808080, side: THREE.DoubleSide });
+        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.rotation.x = Math.PI / 2; // X軸を中心に90度回転させて水平にする
+        plane.position.y = -0.5; // ビルが乗るように少し下げる
+        scene.add(plane);
+
+        // ビルの生成関数
+        function createBuilding(x, z) {
+            const height = Math.random() * 20 + 5; // 5から25のランダムな高さ
+            const width = Math.random() * 4 + 2;   // 2から6のランダムな幅
+            const depth = Math.random() * 4 + 2;   // 2から6のランダムな奥行き
+
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff }); // ランダムな色
+
+            const building = new THREE.Mesh(geometry, material);
+            building.position.set(x, height / 2, z); // Y座標は高さの半分にする (地面に立つように)
+            scene.add(building);
+
+            // 窓を追加（簡略化）
+            const numWindowsX = Math.floor(width / 2);
+            const numWindowsY = Math.floor(height / 3);
+            const windowMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 }); // 黄色い窓
+
+            for (let i = 0; i < numWindowsX; i++) {
+                for (let j = 0; j < numWindowsY; j++) {
+                    const windowWidth = width * 0.1;
+                    const windowHeight = height * 0.1;
+                    const windowGeometry = new THREE.PlaneGeometry(windowWidth, windowHeight);
+                    const windowMesh = new THREE.Mesh(windowGeometry, windowMaterial);
+
+                    windowMesh.position.x = building.position.x + (i - numWindowsX / 2 + 0.5) * (width / numWindowsX);
+                    windowMesh.position.y = building.position.y + (j - numWindowsY / 2 + 0.5) * (height / numWindowsY);
+                    windowMesh.position.z = building.position.z + depth / 2 + 0.01; // 少し手前に出す
+                    scene.add(windowMesh);
+                }
+            }
+        }
+
+        // たくさんのビルを生成
+        const gridX = 10; // X方向のビルの数
+        const gridZ = 10; // Z方向のビルの数
+        const spacing = 10; // ビル間の間隔
+
+        for (let i = 0; i < gridX; i++) {
+            for (let j = 0; j < gridZ; j++) {
+                const x = (i - gridX / 2 + 0.5) * spacing;
+                const z = (j - gridZ / 2 + 0.5) * spacing;
+                createBuilding(x, z);
+            }
+        }
+
+        camera.position.set(50, 30, 50); // カメラの位置
+        camera.lookAt(0, 0, 0); // 原点を見る
+
+        // アニメーションループ
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // ウィンドウのリサイズイベント
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
