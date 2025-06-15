@@ -8,6 +8,7 @@ defmodule ThreeWeb.CgLive.Index do
     socket =
       socket
       |> assign(data: initialization_character_data())
+      |> push_event("add", %{name: "cube", x: 1, y: 2, z: 1})
 
     {:ok, main(socket)}
   end
