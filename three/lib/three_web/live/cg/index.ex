@@ -1,5 +1,6 @@
 defmodule ThreeWeb.CgLive.Index do
   use ThreeWeb, :live_view
+  import ThreeWeb.Cg.CgHelper
 
   @impl true
   def mount(_params, _session, socket) do
@@ -39,17 +40,5 @@ defmodule ThreeWeb.CgLive.Index do
 
   defp update(character_data) do
     character_data + 0.05
-  end
-
-  defp add_cube(socket, name, x, y, z, color) do
-    push_event(socket, "addCube", %{name: name, x: x, y: y, z: z, color: color})
-  end
-
-  defp rotation(socket, name, x, y, z) do
-    push_event(socket, "rotation", %{name: name, x: x, y: y, z: z})
-  end
-
-  defp position(socket, name, x, y, z) do
-    push_event(socket, "position", %{name: name, x: x, y: y, z: z})
   end
 end
