@@ -33,6 +33,25 @@ export const hooks = {
       if (y != null) position.y = y;
       if (z != null) position.y = z;
     },
+    loadModel(name, path) {
+      const loader = new GLTFLoader();
+      const v = this.v
+      loader.load(
+        path, // VRoid Studioから出力したVRMファイル名
+        function (gltf) {
+          model = gltf.scene; // ロードされたシーン全体を格納
+          v.scene.add(model);
+          v[name] = model;
+
+        },
+        function (xhr) {
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function (error) {
+          console.error('An error happened', error);
+        }
+      );
+    },
     handleEventInit() {
       this.handleEvent("addCube", data => {
         this.addCube(data.name, data.x, data.y, data.z, data.color)
@@ -44,6 +63,10 @@ export const hooks = {
 
       this.handleEvent("position", data => {
         this.position(data.name, data.x, data.y, data.z)
+      });
+
+      this.handleEvent("loadModel", data => {
+        this.loadModel(data.name, data.path)
       });
 
     },

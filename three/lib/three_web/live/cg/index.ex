@@ -13,6 +13,7 @@ defmodule ThreeWeb.CgLive.Index do
       |> position("cube", 1, 2, 1)
       |> add_cube("cube1", 1, 2, 1, "#00AA00")
       |> position("cube1", -1, 1, 1)
+      |> load_model("test", "images/test.vrm")
 
     {:ok, main(socket)}
   end
@@ -35,6 +36,7 @@ defmodule ThreeWeb.CgLive.Index do
     socket
     |> rotation("cube1", character_data, 1, 1)
     |> rotation("cube", 1, 1, character_data)
+    |> rotation("test", 1, 1, -character_data)
     |> assign(data: character_data)
   end
 

@@ -12,4 +12,8 @@ defmodule ThreeWeb.Cg.CgHelper do
   def position(socket, name, x, y, z) do
     push_event(socket, "position", %{name: name, x: x, y: y, z: z})
   end
+
+  def load_model(socket, name, path) do
+    push_event(socket, "loadModel", %{name: name, path: path})
+  end
 end
