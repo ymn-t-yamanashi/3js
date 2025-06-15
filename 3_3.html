@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Particles with ShaderMaterial</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.165.0/build/three.module.js';
+
+        // シーン、カメラ、レンダラーのセットアップ
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        camera.position.z = 50;
+
+        // --- シェーダーコード ---
+        // バーテックスシェーダー (各パーティクルの位置とサイズを計算)
+        const vertexShader = `
+            uniform float uTime;      // アニメーション用の時間
+            attribute float pSize;    // 各パーティクル固有のサイズ
+            attribute vec3 pColor;    // 各パーティクル固有の色
+
+            varying vec3 vColor;      // フラグメントシェーダーに渡す色
+
+            void main() {
+                vColor = pColor; // 各パーティクルの色をvaryingに設定
+
+                // 各パーティクルの初期位置
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+                // 簡単なアニメーション：時間でY座標を少し上下させる
+                mvPosition.y += sin(position.x * 0.5 + uTime * 2.0) * 2.0;
+                mvPosition.x += cos(position.y * 0.5 + uTime * 2.0) * 2.0;
+
+                // gl_PointSize は、画面上のパーティクルのサイズをピクセル単位で指定します
+                // mvPosition.z が小さいほど（カメラに近いほど）大きく表示
+                gl_PointSize = pSize * (200.0 / -mvPosition.z); // 200.0はスケール調整用
+
+                // gl_Position は、最終的な画面上の頂点位置
+                gl_Position = projectionMatrix * mvPosition;
+            }
+        `;
+
+        // フラグメントシェーダー (各ピクセルの色を決定)
+        const fragmentShader = `
+            uniform sampler2D uParticleTexture; // パーティクルテクスチャ (あれば)
+            varying vec3 vColor;                // バーテックスシェーダーから受け取った色
+
+            void main() {
+                // gl_PointCoord は、パーティクル内のピクセル座標 (0.0 - 1.0)
+                // テクスチャがあれば、それを使って色を決定
+                // vec4 texColor = texture2D(uParticleTexture, gl_PointCoord);
+                
+                // テクスチャなしの場合、単純にVaryingの色を使用
+                gl_FragColor = vec4(vColor, 1.0); // RGBと透明度(1.0=不透明)
+            }
+        `;
+
+        // --- Three.js コード ---
+        const particleCount = 100000; // 多数のパーティクル
+        const positions = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+        const colors = new Float32Array(particleCount * 3);
+
+        for (let i = 0; i < particleCount; i++) {
+            const i3 = i * 3;
+
+            // 初期位置をランダムに設定 (-100から100の範囲)
+            positions[i3] = (Math.random() - 0.5) * 200;
+            positions[i3 + 1] = (Math.random() - 0.5) * 200;
+            positions[i3 + 2] = (Math.random() - 0.5) * 200;
+
+            // 各パーティクル固有のサイズ
+            sizes[i] = Math.random() * 2 + 0.5; // 0.5から2.5のランダムなサイズ
+
+            // 各パーティクル固有の色 (ここではランダムな青っぽい色)
+            colors[i3] = 0.1 + Math.random() * 0.2; // 赤 (低め)
+            colors[i3 + 1] = 0.5 + Math.random() * 0.5; // 緑 (中くらいから高め)
+            colors[i3 + 2] = 0.8 + Math.random() * 0.2; // 青 (高め)
+        }
+
+        // ジオメトリの作成と属性の設定
+        const particlesGeometry = new THREE.BufferGeometry();
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particlesGeometry.setAttribute('pSize', new THREE.BufferAttribute(sizes, 1)); // カスタム属性 'pSize'
+        particlesGeometry.setAttribute('pColor', new THREE.BufferAttribute(colors, 3)); // カスタム属性 'pColor'
+
+        // マテリアル (ShaderMaterial) の作成
+        const particlesMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0.0 }, // 時間を渡すUniform
+                // uParticleTexture: { value: new THREE.TextureLoader().load('path/to/your/particle_texture.png') } // テクスチャを使用する場合
+            },
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader,
+            blending: THREE.AdditiveBlending, // 加算ブレンド (光る表現に最適)
+            transparent: true,
+            depthWrite: false, // パーティクルが重なった際の描画順のちらつきを軽減
+        });
+
+        // パーティクルオブジェクトの作成
+        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particles);
+
+        // アニメーションループ
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // uTime Uniformを更新して、シェーダーに時間を渡す
+            particlesMaterial.uniforms.uTime.value = performance.now() / 1000; // 秒単位の時間
+
+            // パーティクルシステム全体を回転させる
+            particles.rotation.y += 0.001;
+            particles.rotation.x += 0.0005;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // ウィンドウのリサイズイベントハンドラ
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

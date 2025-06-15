@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Particles with PointsMaterial</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.165.0/build/three.module.js';
+
+        // シーン、カメラ、レンダラーのセットアップ
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        camera.position.z = 50;
+
+        // パーティクルの数
+        const particleCount = 20000;
+        const positions = new Float32Array(particleCount * 3); // x, y, z
+
+        // 各パーティクルの初期位置をランダムに設定
+        for (let i = 0; i < particleCount; i++) {
+            const i3 = i * 3;
+            // -50から50の範囲でランダムに配置
+            positions[i3] = (Math.random() - 0.5) * 100; // x
+            positions[i3 + 1] = (Math.random() - 0.5) * 100; // y
+            positions[i3 + 2] = (Math.random() - 0.5) * 100; // z
+        }
+
+        // ジオメトリの作成
+        const particlesGeometry = new THREE.BufferGeometry();
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        // マテリアルの作成
+        const particlesMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,       // 白色のパーティクル
+            size: 0.2,             // パーティクルのサイズ
+            sizeAttenuation: true, // カメラからの距離に応じてサイズを変化させる (trueが推奨)
+            transparent: true,     // 透明度を有効にする
+            opacity: 0.7,          // 透明度
+            // blending: THREE.AdditiveBlending, // 必要であれば加算ブレンド
+        });
+
+        // パーティクルオブジェクトの作成
+        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particles);
+
+        // アニメーションループ
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // パーティクルシステム全体を回転させる例
+            particles.rotation.x += 0.0005;
+            particles.rotation.y += 0.0008;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // ウィンドウのリサイズイベントハンドラ
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
