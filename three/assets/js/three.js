@@ -25,24 +25,25 @@ export const hooks = {
       rotation = this.v[name].rotation;
       if (x != null) rotation.x = x;
       if (y != null) rotation.y = y;
-      if (z != null) rotation.y = z;
+      if (z != null) rotation.z = z;
     },
     position(name, x, y, z) {
       position = this.v[name].position;
       if (x != null) position.x = x;
       if (y != null) position.y = y;
-      if (z != null) position.y = z;
+      if (z != null) position.z = z;
     },
     loadModel(name, path) {
       const loader = new GLTFLoader();
       const v = this.v
+      const t = this
       loader.load(
         path, // VRoid Studioから出力したVRMファイル名
         function (gltf) {
           model = gltf.scene; // ロードされたシーン全体を格納
           v.scene.add(model);
           v[name] = model;
-
+          t.pushEvent('load_model', {status: "completion", name: name})
         },
         function (xhr) {
           console.log((xhr.loaded / xhr.total * 100) + '% loaded');
