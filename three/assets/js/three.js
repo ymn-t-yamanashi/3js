@@ -3,70 +3,97 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export const hooks = {
+  threejs: {
     v: {},
-    model: null, 
-    threejs: {
-      mounted() {
-       console.log("mounted");
-       v = init(this.el);
-
-      },
-      updated() {
-       dataset = this.el.dataset
-       console.log(dataset);
-       model.rotation.y = dataset.data;
-       v.render()
-      },
+    mounted() {
+      console.log("mounted");
+      this.init(this.el);
+      this.handleEventInit();
     },
-  };
+    addCube(name, x, y, z, color) {
+      const geometry = new THREE.BoxGeometry(x, y, z);
 
-  function init(el) {
+      // マテリアルを作成
+      const material = new THREE.MeshBasicMaterial({ color: color });
+
+      // メッシュ（ジオメトリとマテリアルを組み合わせたもの）を作成
+      const cube = new THREE.Mesh(geometry, material);
+      this.v.scene.add(cube);
+      this.v[name] = cube;
+    },
+    rotation(name, x, y, z) {
+      rotation = this.v[name].rotation;
+      if (x != null) rotation.x = x;
+      if (y != null) rotation.y = y;
+      if (z != null) rotation.z = z;
+    },
+    position(name, x, y, z) {
+      position = this.v[name].position;
+      if (x != null) position.x = x;
+      if (y != null) position.y = y;
+      if (z != null) position.z = z;
+    },
+    loadModel(name, path) {
       const loader = new GLTFLoader();
-
-       // シーンの作成
-       const scene = new THREE.Scene();
-       // カメラの作成
-       const camera = new THREE.PerspectiveCamera( 75, 1000/800, 0.1, 1000 );
-       camera.position.z = 1.7;
-       camera.position.y = 0.8;
-       // レンダラーの作成
-       const renderer = new THREE.WebGLRenderer();
-       renderer.setSize( 1000,  800);
-       el.appendChild( renderer.domElement );
-   
-       // 立方体のジオメトリを作成
-       const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
-   
-       // マテリアルを作成
-       const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-   
-       // メッシュ（ジオメトリとマテリアルを組み合わせたもの）を作成
-       const cube = new THREE.Mesh( geometry, material );
-       // scene.add( cube );
-   
-       // cube.rotation.x += 0.00;
-       // cube.rotation.y += 0.00;
-  
-             // モデルをロード
+      const v = this.v
+      const t = this
       loader.load(
-        'images/test.vrm', // VRoid Studioから出力したVRMファイル名
+        path, // VRoid Studioから出力したVRMファイル名
         function (gltf) {
           model = gltf.scene; // ロードされたシーン全体を格納
-          scene.add(model);
-          render();
+          v.scene.add(model);
+          v[name] = model;
+          t.pushEvent('load_model', {status: "completion", name: name})
         },
         function (xhr) {
-            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         },
         function (error) {
-            console.error('An error happened', error);
+          console.error('An error happened', error);
         }
       );
+    },
+    handleEventInit() {
+      this.handleEvent("addCube", data => {
+        this.addCube(data.name, data.x, data.y, data.z, data.color)
+      });
 
-       function render() {
-        renderer.render( scene, camera );
-       }
-       return {"render": render};
+      this.handleEvent("rotation", data => {
+        this.rotation(data.name, data.x, data.y, data.z)
+      });
+
+      this.handleEvent("position", data => {
+        this.position(data.name, data.x, data.y, data.z)
+      });
+
+      this.handleEvent("loadModel", data => {
+        this.loadModel(data.name, data.path)
+      });
+
+    },
+    init(el) {
+      // シーンの作成
+      const scene = new THREE.Scene();
+
+      // カメラの作成
+      const camera = new THREE.PerspectiveCamera(75, 1000 / 800, 0.1, 1000);
+      camera.position.z = 5;
+
+      // レンダラーの作成
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(1000, 800);
+      el.appendChild(renderer.domElement);
+
+      function render() {
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+      }
+
+      render();
+      this.v = { "render": render, "scene": scene };
+    }
   }
-  
+};
+
+
 
