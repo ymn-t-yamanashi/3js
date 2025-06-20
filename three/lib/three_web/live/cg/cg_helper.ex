@@ -16,4 +16,12 @@ defmodule ThreeWeb.Cg.CgHelper do
   def load_model(socket, name, path) do
     push_event(socket, "loadModel", %{name: name, path: path})
   end
+
+  def load_texture(socket, name, path) do
+    push_event(socket, "loadTexture", %{name: name, path: path})
+  end
+
+  def set_texture(socket, obj_name, texture_name) do
+    push_event(socket, "setTexture", %{obj_name: obj_name, texture_name: texture_name})
+  end
 end

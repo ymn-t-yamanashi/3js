@@ -43,7 +43,7 @@ export const hooks = {
           model = gltf.scene; // ロードされたシーン全体を格納
           v.scene.add(model);
           v[name] = model;
-          t.pushEvent('load_model', {status: "completion", name: name})
+          t.pushEvent('load_model', { status: "completion", name: name })
         },
         function (xhr) {
           console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -52,6 +52,46 @@ export const hooks = {
           console.error('An error happened', error);
         }
       );
+    },
+    loadTexture(name, path) {
+      const v = this.v
+      const t = this;
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load(path,
+        // 読み込み成功時のコールバック
+        function (texture) {
+          v[name] = new THREE.MeshBasicMaterial({ map: texture });
+          t.pushEvent('load_texture', { status: "completion", name: name })
+        },
+        // 読み込み進捗時のコールバック (オプション)
+        undefined,
+        // 読み込みエラー時のコールバック
+        undefined
+      );
+    },
+    setTexture(objName, textureName) {
+      const obj = this.v[objName];
+      if (!obj || !obj.material) {
+        console.warn(`オブジェクト '${objName}' またはそのマテリアルが見つかりません。`);
+        console.log(obj)
+        return;
+      }
+
+      const material = obj.material;
+
+      const newMaterialWithTexture = this.v[textureName];
+      if (!newMaterialWithTexture || !(newMaterialWithTexture instanceof THREE.MeshBasicMaterial)) {
+        console.warn(`テクスチャ '${textureName}' に対応する有効なマテリアルが見つかりません。`);
+        return;
+      }
+      const texture = newMaterialWithTexture.map; // 読み込まれたテクスチャを取得
+
+      if (material instanceof THREE.MeshBasicMaterial || material instanceof THREE.MeshStandardMaterial) {
+        material.map = texture;
+        material.needsUpdate = true; // マテリアルの更新をThree.jsに通知
+      } else {
+        console.warn(`オブジェクト '${objName}' のマテリアルはテクスチャマップをサポートしていません。`);
+      }
     },
     handleEventInit() {
       this.handleEvent("addCube", data => {
@@ -69,7 +109,13 @@ export const hooks = {
       this.handleEvent("loadModel", data => {
         this.loadModel(data.name, data.path)
       });
+      this.handleEvent("loadTexture", data => {
+        this.loadTexture(data.name, data.path)
+      });
 
+      this.handleEvent("setTexture", data => {
+        this.setTexture(data.obj_name, data.texture_name)
+      });
     },
     init(el) {
       // シーンの作成
