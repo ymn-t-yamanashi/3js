@@ -5,6 +5,10 @@ defmodule ThreeWeb.Cg.CgHelper do
     push_event(socket, "addCube", %{name: name, x: x, y: y, z: z, color: color})
   end
 
+  def add_plane(socket, name, x, y, color) do
+    push_event(socket, "addPlane", %{name: name, x: x, y: y, color: color})
+  end
+
   def rotation(socket, name, x, y, z) do
     push_event(socket, "rotation", %{name: name, x: x, y: y, z: z})
   end

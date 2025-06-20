@@ -13,6 +13,8 @@ defmodule ThreeWeb.CgLive.Index do
       |> position("cube", 1, 2, 0)
       |> add_cube("cube1", 1, 1, 1, "#777777")
       |> position("cube1", -2, -1, 0)
+      |> add_plane("bg", 1, 1, "#666666")
+      |> position("bg", 0, -4, -2)
       |> load_texture("texture", "https://threejs.org/examples/textures/crate.gif")
       |> load_model("test", "images/test.vrm")
       |> load_model("test1", "images/test.vrm")
@@ -46,6 +48,7 @@ defmodule ThreeWeb.CgLive.Index do
     socket =
       socket
       |> set_texture("cube1", "texture")
+      |> set_texture("bg", "texture")
 
     {:noreply, socket}
   end

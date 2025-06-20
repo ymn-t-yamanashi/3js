@@ -21,6 +21,17 @@ export const hooks = {
       this.v.scene.add(cube);
       this.v[name] = cube;
     },
+    addPlane(name, x, y, color) {
+      const geometry = new  THREE.PlaneGeometry(x, y)
+
+      // マテリアルを作成
+      const material = new THREE.MeshBasicMaterial({ color: color });
+
+      // メッシュ（ジオメトリとマテリアルを組み合わせたもの）を作成
+      const cube = new THREE.Mesh(geometry, material);
+      this.v.scene.add(cube);
+      this.v[name] = cube;
+    },
     rotation(name, x, y, z) {
       rotation = this.v[name].rotation;
       if (x != null) rotation.x = x;
@@ -96,6 +107,10 @@ export const hooks = {
     handleEventInit() {
       this.handleEvent("addCube", data => {
         this.addCube(data.name, data.x, data.y, data.z, data.color)
+      });
+
+      this.handleEvent("addPlane", data => {
+        this.addPlane(data.name, data.x, data.y, data.color)
       });
 
       this.handleEvent("rotation", data => {
