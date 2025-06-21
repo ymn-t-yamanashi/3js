@@ -1,4 +1,4 @@
-defmodule ThreeWeb.CgLive.Index do
+defmodule ThreeWeb.CgLive.S1 do
   use ThreeWeb, :live_view
   import ThreeWeb.Cg.CgHelper
 
@@ -15,9 +15,9 @@ defmodule ThreeWeb.CgLive.Index do
       |> position("cube1", -2, -1, 0)
       |> add_planes()
       |> load_texture("texture", "https://threejs.org/examples/textures/crate.gif")
-      |> load_texture("t1", "images/t1.jpg")
-      |> load_model("test", "images/test.vrm")
-      |> load_model("test1", "images/test.vrm")
+      |> load_texture("t1", "/images/t1.jpg")
+      |> load_model("test", "/images/test.vrm")
+      |> load_model("test1", "/images/test.vrm")
 
     {:ok, main(socket)}
   end

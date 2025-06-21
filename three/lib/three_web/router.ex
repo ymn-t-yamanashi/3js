@@ -10,6 +10,15 @@ defmodule ThreeWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :browser_s do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {ThreeWeb.Layouts, :s}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -18,7 +27,13 @@ defmodule ThreeWeb.Router do
     pipe_through :browser
 
     live "/", CgLive.Index, :index
+
     # get "/", PageController, :home
+  end
+
+  scope "/s", ThreeWeb do
+    pipe_through :browser_s
+    live "1", CgLive.S1, :index
   end
 
   # Other scopes may use custom stacks.
