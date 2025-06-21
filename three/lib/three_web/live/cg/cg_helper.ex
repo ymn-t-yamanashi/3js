@@ -52,4 +52,8 @@ defmodule ThreeWeb.Cg.CgHelper do
       textColor: text_color
     })
   end
+
+  def set_size(socket) do
+    push_event(socket, "setSize", %{})
+  end
 end

@@ -172,7 +172,7 @@ export const hooks = {
      * @param {string} textColor - 新しいテキストの色
      */
     setTextPlaneText(name, newTextContent, fontSize, textColor) {
-   const textMesh = this.v[name];
+      const textMesh = this.v[name];
       if (!textMesh || !textMesh.material || !textMesh.material.map || !(textMesh.material.map instanceof THREE.CanvasTexture)) {
         console.warn(`オブジェクト '${name}' は有効なテキスト平面ではありません。`);
         return;
@@ -222,6 +222,11 @@ export const hooks = {
       // テクスチャの更新をThree.jsに通知
       texture.needsUpdate = true;
     },
+    setSize() {
+      v["camera"] = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      v["camera"].position.z = 5;
+      v["renderer"].setSize(window.innerWidth, window.innerHeight);
+    },
     handleEventInit() {
       this.handleEvent("addCube", data => {
         this.addCube(data.name, data.x, data.y, data.z, data.color)
@@ -257,9 +262,13 @@ export const hooks = {
       this.handleEvent("setTextPlaneText", data => {
         this.setTextPlaneText(data.name, data.newTextContent, data.fontSize, data.textColor);
       });
+      this.handleEvent("setSize", () => {
+        this.setSize();
+      });
     },
     init(el) {
       // シーンの作成
+      v = this.v
       const scene = new THREE.Scene();
 
       // 環境光の追加 (シーン全体を均一に照らす)
@@ -272,23 +281,21 @@ export const hooks = {
       scene.add(directionalLight);
 
       // カメラの作成
-      // const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      const camera = new THREE.PerspectiveCamera(75, 1000 / 800, 0.1, 1000);
-      camera.position.z = 5;
+      v["camera"] = new THREE.PerspectiveCamera(75, 1000 / 800, 0.1, 1000);
+      v["camera"].position.z = 5;
 
       // レンダラーの作成
-      const renderer = new THREE.WebGLRenderer();
-      renderer.setSize(1000, 800);
-      // renderer.setSize(window.innerWidth, window.innerHeight);
-      el.appendChild(renderer.domElement);
+      v["renderer"] = new THREE.WebGLRenderer();
+      v["renderer"].setSize(1000, 800);
+      el.appendChild(v["renderer"].domElement);
 
       function render() {
         requestAnimationFrame(render);
-        renderer.render(scene, camera);
+        v["renderer"].render(scene, v["camera"]);
       }
 
       render();
-      this.v = { "render": render, "scene": scene };
+      v["scene"] = scene;
     }
   }
 };

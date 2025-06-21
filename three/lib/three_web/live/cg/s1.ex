@@ -4,7 +4,7 @@ defmodule ThreeWeb.CgLive.S1 do
 
   # 1列のパネル数
   @plane_count 80
-  @plane_x -8
+  @plane_x -11
   @plane_s 2
 
   @impl true
@@ -13,6 +13,7 @@ defmodule ThreeWeb.CgLive.S1 do
 
     socket =
       socket
+      |> set_size()
       |> assign(data: initialization_character_data())
       |> add_planes()
       |> add_plane("logo_plane", 0.71 / 2, 0.48 / 2, "#FFFFFF")
@@ -66,12 +67,17 @@ defmodule ThreeWeb.CgLive.S1 do
 
     socket
     |> positions(-character_data)
-    |> set_text_plane_text("my_greeting", "Phoenix Framework  #{DateTime.utc_now()}", 20, "#CC5500")
+    |> set_text_plane_text(
+      "my_greeting",
+      "Phoenix Framework  #{DateTime.utc_now()}",
+      20,
+      "#CC5500"
+    )
     |> assign(data: character_data)
   end
 
   defp update(character_data) do
-    if character_data >= 2, do: 0, else:  character_data + 0.01
+    if character_data >= 2, do: 0, else: character_data + 0.01
   end
 
   defp add_planes(socket) do
@@ -92,12 +98,11 @@ defmodule ThreeWeb.CgLive.S1 do
   end
 
   defp positions(socket, add_x) do
-
     Enum.reduce(1..@plane_count, socket, fn x, acc ->
-      base = @plane_x  + x * @plane_s
+      base = @plane_x + x * @plane_s
 
-      bg_x =  base + add_x * 64
-      bg_ax =  base + add_x  * 16
+      bg_x = base + add_x * 64
+      bg_ax = base + add_x * 16
       bg_bx = base + add_x * 4
 
       position(acc, "bg_#{x}", bg_x, -4, -2)
