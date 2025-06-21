@@ -53,6 +53,13 @@ defmodule ThreeWeb.Cg.CgHelper do
     })
   end
 
+  @doc """
+  Three.jsシーンから指定された名前のオブジェクトを削除します。
+  """
+  def remove_object(socket, name) do
+    push_event(socket, "removeObject", %{name: name})
+  end
+
   def set_size(socket) do
     push_event(socket, "setSize", %{})
   end

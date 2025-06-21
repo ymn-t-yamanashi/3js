@@ -1,4 +1,3 @@
-
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
@@ -35,14 +34,14 @@ export const hooks = {
     },
     rotation(name, x, y, z) {
       if (this.v[name] == undefined) return;
-      rotation = this.v[name].rotation;
+      let rotation = this.v[name].rotation;
       if (x != null) rotation.x = x;
       if (y != null) rotation.y = y;
       if (z != null) rotation.z = z;
     },
     position(name, x, y, z) {
       if (this.v[name] == undefined) return;
-      position = this.v[name].position;
+      let position = this.v[name].position;
       if (x != null) position.x = x;
       if (y != null) position.y = y;
       if (z != null) position.z = z;
@@ -54,7 +53,7 @@ export const hooks = {
       loader.load(
         path, // VRoid Studioから出力したVRMファイル名
         function (gltf) {
-          model = gltf.scene; // ロードされたシーン全体を格納
+          let model = gltf.scene; // ロードされたシーン全体を格納
           v.scene.add(model);
           v[name] = model;
           t.pushEvent('load_model', { status: "completion", name: name })
@@ -222,7 +221,40 @@ export const hooks = {
       // テクスチャの更新をThree.jsに通知
       texture.needsUpdate = true;
     },
+    /**
+     * Three.jsシーンからオブジェクトを削除する関数
+     * @param {string} name - 削除するオブジェクトの識別名
+     */
+    removeObject(name) {
+      const objectToRemove = this.v[name];
+
+      if (!objectToRemove) {
+        console.warn(`オブジェクト '${name}' は見つかりませんでした。`);
+        return;
+      }
+
+      // シーンからオブジェクトを削除
+      this.v.scene.remove(objectToRemove);
+
+      // ジオメトリとマテリアルを破棄してメモリを解放
+      if (objectToRemove.geometry) {
+        objectToRemove.geometry.dispose();
+      }
+      if (objectToRemove.material) {
+        // マテリアルが配列の場合を考慮
+        if (Array.isArray(objectToRemove.material)) {
+          objectToRemove.material.forEach(material => material.dispose());
+        } else {
+          objectToRemove.material.dispose();
+        }
+      }
+
+      // this.v からも参照を削除
+      delete this.v[name];
+      console.log(`オブジェクト '${name}' がシーンから削除されました。`);
+    },
     setSize() {
+      let v = this.v;
       v["camera"] = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
       v["camera"].position.z = 5;
       v["renderer"].setSize(window.innerWidth, window.innerHeight);
@@ -262,13 +294,16 @@ export const hooks = {
       this.handleEvent("setTextPlaneText", data => {
         this.setTextPlaneText(data.name, data.newTextContent, data.fontSize, data.textColor);
       });
+      this.handleEvent("removeObject", data => {
+        this.removeObject(data.name);
+      });
       this.handleEvent("setSize", () => {
         this.setSize();
       });
     },
     init(el) {
       // シーンの作成
-      v = this.v
+      let v = this.v;
       const scene = new THREE.Scene();
 
       // 環境光の追加 (シーン全体を均一に照らす)
@@ -299,6 +334,3 @@ export const hooks = {
     }
   }
 };
-
-
-
