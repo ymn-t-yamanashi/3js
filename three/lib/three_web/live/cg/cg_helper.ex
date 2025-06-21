@@ -28,4 +28,28 @@ defmodule ThreeWeb.Cg.CgHelper do
   def set_texture(socket, obj_name, texture_name) do
     push_event(socket, "setTexture", %{obj_name: obj_name, texture_name: texture_name})
   end
+
+  @doc """
+  Three.jsシーンにCanvasテクスチャでテキストを表示する平面オブジェクトを追加します。
+  """
+  def add_text_plane(socket, name, text_content, font_size, text_color) do
+    push_event(socket, "addTextPlane", %{
+      name: name,
+      textContent: text_content,
+      fontSize: font_size,
+      textColor: text_color
+    })
+  end
+
+  @doc """
+  既存のテキスト平面オブジェクトの文字内容とスタイルを更新します。
+  """
+  def set_text_plane_text(socket, name, new_text_content, font_size, text_color) do
+    push_event(socket, "setTextPlaneText", %{
+      name: name,
+      newTextContent: new_text_content,
+      fontSize: font_size,
+      textColor: text_color
+    })
+  end
 end

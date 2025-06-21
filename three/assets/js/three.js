@@ -22,10 +22,11 @@ export const hooks = {
       this.v[name] = cube;
     },
     addPlane(name, x, y, color) {
-      const geometry = new  THREE.PlaneGeometry(x, y)
+      const geometry = new THREE.PlaneGeometry(x, y)
 
       // マテリアルを作成
-      const material = new THREE.MeshBasicMaterial({ color: color });
+      // const material = new THREE.MeshBasicMaterial({ color: color });
+      const material = new THREE.MeshStandardMaterial({ color: color, side: THREE.DoubleSide }); // ライトに反応する
 
       // メッシュ（ジオメトリとマテリアルを組み合わせたもの）を作成
       const cube = new THREE.Mesh(geometry, material);
@@ -107,6 +108,121 @@ export const hooks = {
         console.warn(`オブジェクト '${objName}' のマテリアルはテクスチャマップをサポートしていません。`);
       }
     },
+    /**
+   * Canvasテクスチャを使ってテキストを表示する平面オブジェクトを追加
+   * @param {string} name - オブジェクトの識別名
+   * @param {string} textContent - 表示するテキスト
+   * @param {number} fontSize - フォントサイズ (例: 80)
+   * @param {string} textColor - テキストの色 (例: 'white', '#FF0000')
+   */
+    addTextPlane(name, textContent, fontSize, textColor) {
+      // 内部的なデフォルト値
+      const fontFamily = 'Arial'; // またはお好みの汎用フォント
+      const padding = 20; // テキスト周りの余白
+      const planeScale = 100; // Three.jsのワールド単位への変換スケール
+
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+
+      context.font = `Bold ${fontSize}px ${fontFamily}`;
+
+      // テキストの幅を測定
+      const textMetrics = context.measureText(textContent);
+      const textWidth = textMetrics.width;
+      const textHeight = fontSize; // おおよその高さ
+
+      // Canvasのサイズを計算 (パディングを含む)
+      canvas.width = textWidth + padding * 2;
+      canvas.height = textHeight + padding * 2;
+
+      // Canvasの描画設定を再適用 (width/height変更でリセットされるため)
+      context.font = `Bold ${fontSize}px ${fontFamily}`;
+      context.fillStyle = textColor;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+
+      // テキストを描画
+      context.fillText(textContent, canvas.width / 2, canvas.height / 2);
+
+      // Canvasをテクスチャとして使用
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+
+      // マテリアルを作成 (両面表示をデフォルト)
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        side: THREE.DoubleSide, // 両面表示
+      });
+
+      // 平面ジオメトリのサイズをCanvasのアスペクト比に合わせて調整
+      const planeWidth = canvas.width / planeScale;
+      const planeHeight = canvas.height / planeScale;
+      const planeGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
+      const textMesh = new THREE.Mesh(planeGeometry, material);
+
+      this.v.scene.add(textMesh);
+      this.v[name] = textMesh; // シーンに追加したメッシュをvに保存
+    },
+    /**
+     * 既存のテキスト平面オブジェクトの文字内容とスタイルを更新
+     * @param {string} name - 更新するオブジェクトの識別名
+     * @param {string} newTextContent - 新しいテキスト内容
+     * @param {number} fontSize - 新しいフォントサイズ
+     * @param {string} textColor - 新しいテキストの色
+     */
+    setTextPlaneText(name, newTextContent, fontSize, textColor) {
+      const textMesh = this.v[name];
+      if (!textMesh || !textMesh.material || !textMesh.material.map || !(textMesh.material.map instanceof THREE.CanvasTexture)) {
+        console.warn(`オブジェクト '${name}' は有効なテキスト平面ではありません。`);
+        return;
+      }
+
+      // 内部的なデフォルト値 (addTextPlaneと合わせる)
+      const fontFamily = 'Arial';
+      const padding = 20;
+      const planeScale = 100;
+
+      const texture = textMesh.material.map;
+      const canvas = texture.image;
+      const context = canvas.getContext('2d');
+
+      // Canvasをクリア
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 新しいテキストの描画設定
+      context.font = `Bold ${fontSize}px ${fontFamily}`;
+      context.fillStyle = textColor;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+
+      // 新しいテキストのサイズを測定し、必要に応じてCanvasサイズとジオメトリを更新
+      const textMetrics = context.measureText(newTextContent);
+      const newTextWidth = textMetrics.width;
+      const newTextHeight = fontSize;
+
+      const newCanvasWidth = newTextWidth + padding * 2;
+      const newCanvasHeight = newTextHeight + padding * 2;
+
+      // Canvasのサイズが変更された場合、ジオメトリも更新する必要がある
+      if (canvas.width !== newCanvasWidth || canvas.height !== newCanvasHeight) {
+        canvas.width = newCanvasWidth;
+        canvas.height = newCanvasHeight;
+        // ジオメトリを再生成（古いジオメトリを破棄）
+        if (textMesh.geometry) {
+          textMesh.geometry.dispose();
+        }
+        const newPlaneWidth = canvas.width / planeScale;
+        const newPlaneHeight = canvas.height / planeScale;
+        textMesh.geometry = new THREE.PlaneGeometry(newPlaneWidth, newPlaneHeight);
+      }
+
+      // テキストを描画
+      context.fillText(newTextContent, canvas.width / 2, canvas.height / 2);
+
+      // テクスチャの更新をThree.jsに通知
+      texture.needsUpdate = true;
+    },
     handleEventInit() {
       this.handleEvent("addCube", data => {
         this.addCube(data.name, data.x, data.y, data.z, data.color)
@@ -134,10 +250,27 @@ export const hooks = {
       this.handleEvent("setTexture", data => {
         this.setTexture(data.obj_name, data.texture_name)
       });
+
+      this.handleEvent("addTextPlane", data => {
+        this.addTextPlane(data.name, data.textContent, data.fontSize, data.textColor);
+      });
+
+      this.handleEvent("setTextPlaneText", data => {
+        this.setTextPlaneText(data.name, data.newTextContent, data.fontSize, data.textColor);
+      });
     },
     init(el) {
       // シーンの作成
       const scene = new THREE.Scene();
+
+      // 環境光の追加 (シーン全体を均一に照らす)
+      const ambientLight = new THREE.AmbientLight(0xffffff, 20.0); // 色と強度
+      scene.add(ambientLight);
+
+      // 平行光源の追加 (太陽のように特定方向から照らす)
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); // 色と強度
+      directionalLight.position.set(0, 10, 5); // 光源の位置
+      scene.add(directionalLight);
 
       // カメラの作成
       // const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);

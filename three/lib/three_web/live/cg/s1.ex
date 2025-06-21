@@ -10,11 +10,13 @@ defmodule ThreeWeb.CgLive.S1 do
       socket
       |> assign(data: initialization_character_data())
       |> add_planes()
-      |> add_plane("logo_plane", 0.71 / 2, 0.48 / 2, "#ffffff")
+      |> add_plane("logo_plane", 0.71 / 2, 0.48 / 2, "#FFFFFF")
       |> position("logo_plane", -4.3, 3.5, 0)
       |> load_texture("logo", "/images/logo.png")
       |> load_texture("t1", "/images/t1.jpg")
       |> load_model("test", "/images/test.vrm")
+      |> add_text_plane("my_greeting", "Phoenix Framework", 20, "#CC5500")
+      |> position("my_greeting", -3, 3.5, 0)
 
     {:ok, main(socket)}
   end
