@@ -4,7 +4,7 @@ defmodule ThreeWeb.CgLive.S1 do
 
   # 1列のパネル数
   @plane_count 80
-  @plane_x -11
+  @plane_x -18
   @plane_s 2
 
   @impl true
