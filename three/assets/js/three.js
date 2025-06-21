@@ -140,12 +140,14 @@ export const hooks = {
       const scene = new THREE.Scene();
 
       // カメラの作成
+      // const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
       const camera = new THREE.PerspectiveCamera(75, 1000 / 800, 0.1, 1000);
       camera.position.z = 5;
 
       // レンダラーの作成
       const renderer = new THREE.WebGLRenderer();
       renderer.setSize(1000, 800);
+      // renderer.setSize(window.innerWidth, window.innerHeight);
       el.appendChild(renderer.domElement);
 
       function render() {
