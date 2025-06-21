@@ -33,12 +33,14 @@ export const hooks = {
       this.v[name] = cube;
     },
     rotation(name, x, y, z) {
+      if (this.v[name] == undefined) return;
       rotation = this.v[name].rotation;
       if (x != null) rotation.x = x;
       if (y != null) rotation.y = y;
       if (z != null) rotation.z = z;
     },
     position(name, x, y, z) {
+      if (this.v[name] == undefined) return;
       position = this.v[name].position;
       if (x != null) position.x = x;
       if (y != null) position.y = y;
@@ -81,6 +83,7 @@ export const hooks = {
       );
     },
     setTexture(objName, textureName) {
+      if (this.v[objName] == undefined) return;
       const obj = this.v[objName];
       if (!obj || !obj.material) {
         console.warn(`オブジェクト '${objName}' またはそのマテリアルが見つかりません。`);
