@@ -9,15 +9,12 @@ defmodule ThreeWeb.CgLive.S1 do
     socket =
       socket
       |> assign(data: initialization_character_data())
-      |> add_cube("cube", 1, 1, 1, "#555555")
-      |> position("cube", 1, 2, 0)
-      |> add_cube("cube1", 1, 1, 1, "#777777")
-      |> position("cube1", -2, -1, 0)
       |> add_planes()
-      |> load_texture("texture", "https://threejs.org/examples/textures/crate.gif")
+      |> add_plane("logo_plane", 0.71 / 2, 0.48 / 2, "#ffffff")
+      |> position("logo_plane", -4.3, 3.5, 0)
+      |> load_texture("logo", "/images/logo.png")
       |> load_texture("t1", "/images/t1.jpg")
       |> load_model("test", "/images/test.vrm")
-      |> load_model("test1", "/images/test.vrm")
 
     {:ok, main(socket)}
   end
@@ -31,23 +28,16 @@ defmodule ThreeWeb.CgLive.S1 do
   def handle_event("load_model", %{"name" => "test", "status" => "completion"}, socket) do
     socket =
       socket
-      |> position("test", 1, -1, 3)
+      |> position("test", -2.5, -1, 1)
+      |> rotation("test", -3.5, 0, -1.6)
 
     {:noreply, socket}
   end
 
-  def handle_event("load_model", %{"name" => "test1", "status" => "completion"}, socket) do
+  def handle_event("load_texture", %{"name" => "logo", "status" => "completion"}, socket) do
     socket =
       socket
-      |> position("test1", 0, 0, 0)
-
-    {:noreply, socket}
-  end
-
-  def handle_event("load_texture", %{"name" => "texture", "status" => "completion"}, socket) do
-    socket =
-      socket
-      |> set_texture("cube1", "texture")
+      |> set_texture("logo_plane", "logo")
 
     {:noreply, socket}
   end
@@ -66,13 +56,8 @@ defmodule ThreeWeb.CgLive.S1 do
 
   defp main(socket) do
     character_data = update(socket.assigns.data)
-    # |> IO.inspect()
 
     socket
-    |> rotation("cube1", character_data, 0, 0)
-    |> rotation("cube", 0, 0, character_data)
-    |> rotation("test", 0, character_data / 4, 0)
-    |> rotation("test1", 0, -character_data * 6, 0)
     |> positions(-character_data)
     |> assign(data: character_data)
   end
