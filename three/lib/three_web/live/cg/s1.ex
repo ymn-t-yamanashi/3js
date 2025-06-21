@@ -2,6 +2,9 @@ defmodule ThreeWeb.CgLive.S1 do
   use ThreeWeb, :live_view
   import ThreeWeb.Cg.CgHelper
 
+  # 1列のパネル数
+  @plane_count 1_000
+
   @impl true
   def mount(_params, _session, socket) do
     Process.send_after(self(), :update, 500)
@@ -69,7 +72,7 @@ defmodule ThreeWeb.CgLive.S1 do
   end
 
   defp add_planes(socket) do
-    Enum.reduce(1..1_000, socket, fn x, acc ->
+    Enum.reduce(1..@plane_count, socket, fn x, acc ->
       acc
       |> add_plane("bg_#{x}", 2, 2, "#666666")
       |> add_plane("bg_a#{x}", 2, 2, "#666666")
@@ -78,7 +81,7 @@ defmodule ThreeWeb.CgLive.S1 do
   end
 
   defp set_textures(socket) do
-    Enum.reduce(1..1_000, socket, fn x, acc ->
+    Enum.reduce(1..@plane_count, socket, fn x, acc ->
       set_texture(acc, "bg_#{x}", "t1")
       |> set_texture("bg_a#{x}", "t1")
       |> set_texture("bg_b#{x}", "t1")
@@ -86,7 +89,7 @@ defmodule ThreeWeb.CgLive.S1 do
   end
 
   defp positions(socket, add_x) do
-    Enum.reduce(1..1_000, socket, fn x, acc ->
+    Enum.reduce(1..@plane_count, socket, fn x, acc ->
       position(acc, "bg_#{x}", -100 + x * 2 + add_x * 8, -4, -2)
       |> position("bg_a#{x}", -100 + x * 2 + add_x * 4, -2, -2)
       |> position("bg_b#{x}", -100 + x * 2 + add_x * 2, 0, -2)
