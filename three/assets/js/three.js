@@ -172,7 +172,7 @@ export const hooks = {
      * @param {string} textColor - 新しいテキストの色
      */
     setTextPlaneText(name, newTextContent, fontSize, textColor) {
-      const textMesh = this.v[name];
+   const textMesh = this.v[name];
       if (!textMesh || !textMesh.material || !textMesh.material.map || !(textMesh.material.map instanceof THREE.CanvasTexture)) {
         console.warn(`オブジェクト '${name}' は有効なテキスト平面ではありません。`);
         return;
@@ -189,12 +189,6 @@ export const hooks = {
 
       // Canvasをクリア
       context.clearRect(0, 0, canvas.width, canvas.height);
-
-      // 新しいテキストの描画設定
-      context.font = `Bold ${fontSize}px ${fontFamily}`;
-      context.fillStyle = textColor;
-      context.textAlign = 'center';
-      context.textBaseline = 'middle';
 
       // 新しいテキストのサイズを測定し、必要に応じてCanvasサイズとジオメトリを更新
       const textMetrics = context.measureText(newTextContent);
@@ -217,7 +211,12 @@ export const hooks = {
         textMesh.geometry = new THREE.PlaneGeometry(newPlaneWidth, newPlaneHeight);
       }
 
-      // テキストを描画
+      // Canvasの描画設定を再適用し、テキストを描画
+      // この部分をif文の外に出すことで、Canvasサイズが変わらない場合でもテキストが再描画されるようにします。
+      context.font = `Bold ${fontSize}px ${fontFamily}`;
+      context.fillStyle = textColor;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
       context.fillText(newTextContent, canvas.width / 2, canvas.height / 2);
 
       // テクスチャの更新をThree.jsに通知

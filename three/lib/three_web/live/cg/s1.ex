@@ -21,7 +21,7 @@ defmodule ThreeWeb.CgLive.S1 do
       |> load_texture("t1", "/images/t1.jpg")
       |> load_model("test", "/images/test.vrm")
       |> add_text_plane("my_greeting", "Phoenix Framework", 20, "#CC5500")
-      |> position("my_greeting", -3, 3.5, 0)
+      |> position("my_greeting", -1.7, 3.5, 0)
 
     {:ok, main(socket)}
   end
@@ -66,6 +66,7 @@ defmodule ThreeWeb.CgLive.S1 do
 
     socket
     |> positions(-character_data)
+    |> set_text_plane_text("my_greeting", "Phoenix Framework  #{DateTime.utc_now()}", 20, "#CC5500")
     |> assign(data: character_data)
   end
 
