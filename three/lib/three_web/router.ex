@@ -34,6 +34,7 @@ defmodule ThreeWeb.Router do
   scope "/s", ThreeWeb do
     pipe_through :browser_s
     live "1", CgLive.S1, :index
+    live "eli", CgLive.Eli, :index
   end
 
   # Other scopes may use custom stacks.

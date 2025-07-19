@@ -66,6 +66,30 @@ export const hooks = {
         }
       );
     },
+    rotateArm(name, angle) {
+      if (this.v[name] == undefined) return;
+
+      const model = this.v[name];
+      console.log(model);
+      model.traverse((obj) => { if (obj.isBone) console.log(obj.name); });
+
+
+      // VRoidモデルの構造に合わせて、腕のボーンを探す
+      // ボーンの名前はVRoid Studioで確認してください。
+      const armBone = model.getObjectByName('J_Bip_R_UpperArm'); // 例：'Arm'という名前のボーンを検索
+
+      if (armBone) {
+        // ラジアンに変換
+        const angleRad = angle * Math.PI / 180;
+
+        // ボーンの回転を設定
+        armBone.rotation.x = angleRad; // X軸を中心に回転させる例
+        armBone.rotation.y = angleRad;
+
+      } else {
+        console.warn(`ボーン '${name}' が見つかりませんでした。`);
+      }
+    },
     loadTexture(name, path) {
       const v = this.v
       const t = this;
@@ -279,6 +303,11 @@ export const hooks = {
       this.handleEvent("loadModel", data => {
         this.loadModel(data.name, data.path)
       });
+
+      this.handleEvent("rotateArm", data => {
+        this.rotateArm(data.name, data.angle)
+      });
+
       this.handleEvent("loadTexture", data => {
         this.loadTexture(data.name, data.path)
       });

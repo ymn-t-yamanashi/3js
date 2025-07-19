@@ -21,6 +21,10 @@ defmodule ThreeWeb.Cg.CgHelper do
     push_event(socket, "loadModel", %{name: name, path: path})
   end
 
+  def rotate_arm(socket, name, angle) do
+    push_event(socket, "rotateArm", %{name: name, angle: angle})
+  end
+
   def load_texture(socket, name, path) do
     push_event(socket, "loadTexture", %{name: name, path: path})
   end
