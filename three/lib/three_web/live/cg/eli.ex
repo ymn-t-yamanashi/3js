@@ -59,6 +59,7 @@ defmodule ThreeWeb.CgLive.Eli do
     |> rotation_bone("test", "J_Bip_R_LowerLeg", character_data, character_data, character_data)
     |> rotation_bone("test", "J_Bip_R_ToeBase", character_data, character_data, character_data)
     |> rotation_bone("test", "J_Bip_C_Neck", character_data, character_data, character_data)
+    |> rotation_bone("test", "J_Bip_C_Hips", character_data, character_data, character_data)
     |> assign(data: character_data)
   end
 
