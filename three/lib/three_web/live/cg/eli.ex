@@ -33,11 +33,15 @@ defmodule ThreeWeb.CgLive.Eli do
       socket
       |> position("test", 0, -1, 3)
       |> rotation("test", 0, 3.2, 0)
+      |> get_bone("test")
 
     {:noreply, socket}
   end
 
-
+  def handle_event("get_bone", %{"name" => name}, socket) do
+    IO.inspect(name)
+    {:noreply, socket}
+  end
 
   defp initialization_character_data() do
     0
@@ -47,12 +51,18 @@ defmodule ThreeWeb.CgLive.Eli do
     character_data = update(socket.assigns.data)
 
     socket
-    |> rotate_arm("test", character_data)
+    |> rotation_bone("test", "J_Bip_R_UpperArm", character_data, character_data, character_data)
+    |> rotation_bone("test", "J_Bip_L_UpperArm", character_data, character_data, character_data)
+    |> rotation_bone("test", "J_Bip_L_UpperLeg", character_data, character_data, character_data)
+    |> rotation_bone("test", "J_Bip_L_LowerLeg", character_data, character_data, character_data)
+    |> rotation_bone("test", "J_Bip_L_ToeBase", character_data, character_data, character_data)
+    |> rotation_bone("test", "J_Bip_R_LowerLeg", character_data, character_data, character_data)
+    |> rotation_bone("test", "J_Bip_R_ToeBase", character_data, character_data, character_data)
+    |> rotation_bone("test", "J_Bip_C_Neck", character_data, character_data, character_data)
     |> assign(data: character_data)
   end
 
   defp update(character_data) do
-    character_data + 1
+    character_data + 0.02
   end
-
 end

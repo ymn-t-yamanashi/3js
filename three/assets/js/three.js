@@ -66,29 +66,23 @@ export const hooks = {
         }
       );
     },
-    rotateArm(name, angle) {
+    getBone(name) {
       if (this.v[name] == undefined) return;
-
+      const t = this
       const model = this.v[name];
-      console.log(model);
-      model.traverse((obj) => { if (obj.isBone) console.log(obj.name); });
-
-
+      model.traverse((obj) => { if (obj.isBone) t.pushEvent('get_bone', { name: obj.name }) });
+    },
+    rotationBone(name, boneName, x, y, z) {
+      if (this.v[name] == undefined) return;
+      const model = this.v[name];
       // VRoidモデルの構造に合わせて、腕のボーンを探す
       // ボーンの名前はVRoid Studioで確認してください。
-      const armBone = model.getObjectByName('J_Bip_R_UpperArm'); // 例：'Arm'という名前のボーンを検索
+      const bone = model.getObjectByName(boneName);
 
-      if (armBone) {
-        // ラジアンに変換
-        const angleRad = angle * Math.PI / 180;
-
-        // ボーンの回転を設定
-        armBone.rotation.x = angleRad; // X軸を中心に回転させる例
-        armBone.rotation.y = angleRad;
-
-      } else {
-        console.warn(`ボーン '${name}' が見つかりませんでした。`);
-      }
+      if (!bone) return;
+      if (x != null) bone.rotation.x = x;
+      if (y != null) bone.rotation.y = y;
+      if (z != null) bone.rotation.z = z;
     },
     loadTexture(name, path) {
       const v = this.v
@@ -304,8 +298,13 @@ export const hooks = {
         this.loadModel(data.name, data.path)
       });
 
-      this.handleEvent("rotateArm", data => {
-        this.rotateArm(data.name, data.angle)
+      this.handleEvent("getBone", data => {
+        this.getBone(data.name)
+      });
+
+      
+      this.handleEvent("rotationBone", data => {
+        this.rotationBone(data.name, data.bone_name, data.x, data.y, data.z)
       });
 
       this.handleEvent("loadTexture", data => {
